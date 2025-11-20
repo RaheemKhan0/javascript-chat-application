@@ -3,7 +3,15 @@ const socket = new WebSocket("ws://localhost:3000");
 const sendinput = document.querySelector(".send-input");
 const sendbutton = document.querySelector(".send-button");
 const messagelist = document.querySelector(".message-list");
+const usernameinput = document.querySelector(".usernameinput");
+const usernamebutton = document.querySelector(".usernamebutton");
+let userName = "";
 
+if (!userName) {
+  sendbutton.classList.add("hidden");
+  messagelist.classList.add("hidden");
+  sendinput.classList.add("hidden");
+}
 sendbutton.addEventListener("click", (e) => {
   console.log(e);
   socket.send(
@@ -12,7 +20,6 @@ sendbutton.addEventListener("click", (e) => {
       content: sendinput.value,
     }),
   );
-
   const li = document.createElement("li");
   li.innerText = sendinput.value;
   li.classList.add(...["message", "own-message"]);
@@ -20,6 +27,23 @@ sendbutton.addEventListener("click", (e) => {
   messagelist.append(li);
   sendinput.value = "";
 });
+
+usernamebutton.addEventListener("click", () => {
+  if (!usernameinput.value) {
+    alert("please do not submit empty as your username");
+    return;
+  }
+  userName = usernameinput.value;
+  console.log(`user name : ${userName}`);
+  usernameinput.value = "";
+  usernameinput.classList.add("hidden");
+  usernamebutton.classList.add("hidden");
+
+  sendbutton.classList.remove("hidden");
+  messagelist.classList.remove("hidden");
+  sendinput.classList.remove("hidden");
+});
+
 socket.onmessage = (event) => {
   const data = event.data;
   console.log(`recieved message from the server ${event.data}`);

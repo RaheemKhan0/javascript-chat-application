@@ -16,11 +16,17 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "server": "node api/server.js"
+    "server": "node api/server.js",
+    "lint" : "npx eslint"
   },
   "dependencies": {
     "@types/node": "^24.10.1",
     "dotenv": "^17.2.3",
     "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "globals": "^16.5.0"
   }
 }

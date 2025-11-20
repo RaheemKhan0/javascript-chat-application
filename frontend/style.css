@@ -6,6 +6,14 @@ body {
   color: #faf9f6;
 }
 
+.title {
+  text-align: center;
+}
+
+.hidden {
+  display: none !important;
+}
+
 ul {
   list-style-type: none;
   display: block;
@@ -27,9 +35,10 @@ li {
   background-color: whitesmoke;
   color: black;
 }
+
 .announcment {
-  font-size : 20px;
-  color : red;
+  font-size: 20px;
+  color: red;
 }
 
 .send-container {

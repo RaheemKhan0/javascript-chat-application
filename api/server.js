@@ -8,6 +8,7 @@ dotenv.config();
 
 const hostname = process.env.HOSTNAME;
 const port = process.env.PORT;
+const usermap = new Map();
 
 console.log(`hostname : ${hostname} , port : ${port}`);
 
@@ -73,15 +74,41 @@ wss.on("connection", function connection(ws) {
       content: "Welcome to the Node js Chat Server!",
     }),
   );
+  ws.send(
+    JSON.stringify({
+      type: "join",
+      username: ws.username,
+      content: `${ws.username} just joined the chat`,
+    }),
+  );
   ws.on("message", (data) => {
     console.log("recieved message from the client side : ", data);
-    wss.clients.forEach((client) => {
-      if (client != ws) {
-        const text = data.toString();
-        console.log(`converted data to string : ${text}`);
-        client.send(text);
-      }
-    });
+    const parsedData = JSON.parse(data.toJSON());
+    if (parsedData.type == undefined) throw Error("parsed Data not defined");
+
+    switch (parsedData.type) {
+      case "message":
+        if (usermap.has(ws)) {
+          wss.clients.forEach((client) => {
+            if (client != ws) {
+              const text = data.toString();
+              console.log(`converted data to string : ${text}`);
+
+              client.send({ ...text, username: usermap.get(ws)});
+            } else {
+              throw Error('user does not exist');
+            }
+          });
+        }
+        break;
+      case "setUserName":
+        const username = parsedData.username;
+        if (!username) {
+          throw Error("user name not provided");
+        }
+        usermap.set(ws, username);
+        break;
+    }
   });
 });
 
