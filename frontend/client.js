@@ -5,6 +5,7 @@ const sendbutton = document.querySelector(".send-button");
 const messagelist = document.querySelector(".message-list");
 const usernameinput = document.querySelector(".usernameinput");
 const usernamebutton = document.querySelector(".usernamebutton");
+const notificationdiv = document.querySelector(".notification");
 let userName = "";
 
 if (!userName) {
@@ -35,6 +36,11 @@ usernamebutton.addEventListener("click", () => {
   }
   userName = usernameinput.value;
   console.log(`user name : ${userName}`);
+  const message = {
+    type: "setUserName",
+    username: userName,
+  };
+  socket.send(JSON.stringify(message));
   usernameinput.value = "";
   usernameinput.classList.add("hidden");
   usernamebutton.classList.add("hidden");
@@ -45,18 +51,39 @@ usernamebutton.addEventListener("click", () => {
 });
 
 socket.onmessage = (event) => {
-  const data = event.data;
-  console.log(`recieved message from the server ${event.data}`);
-  if (data instanceof Blob) {
-    data.text().then((text) => handleMessage(text));
-  } else {
-    handleMessage(data);
+  let payload = event.data;
+  if (payload instanceof Blob) {
+    payload.text().then((text) => handleIncoming(JSON.parse(text)));
+    return;
   }
+  handleIncoming(JSON.parse(payload));
 };
 
+ function handleIncoming(data) {
+    switch (data.type) {
+      case "message":
+        handleMessage(data);
+        break;
+      case "join":
+        handleNotification(data.type, data.content);
+        break;
+    }
+  }
+
+function handleNotification(type, message) {
+  const header = document.createElement("h6");
+  header.innerText = type;
+  const p = document.createElement("p");
+  p.innerText = message;
+
+  notificationdiv.append(...[header, p]);
+  notification.classList.add("block");
+  setTimeout(() => {
+    notificationdiv.classList.remove("block");
+  }, 3000);
+}
 function handleMessage(text) {
   const { type, content } = JSON.parse(text);
-  console.log([`[handleMessage] type : ${type}, content : ${content} `]);
   switch (type) {
     case "message":
       let li = document.createElement("li");

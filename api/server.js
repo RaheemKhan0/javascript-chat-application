@@ -77,13 +77,12 @@ wss.on("connection", function connection(ws) {
   ws.send(
     JSON.stringify({
       type: "join",
-      username: ws.username,
+      username: usermap.get(ws),
       content: `${ws.username} just joined the chat`,
     }),
   );
   ws.on("message", (data) => {
-    console.log("recieved message from the client side : ", data);
-    const parsedData = JSON.parse(data.toJSON());
+    const parsedData = JSON.parse(data.toString());
     if (parsedData.type == undefined) throw Error("parsed Data not defined");
 
     switch (parsedData.type) {
@@ -91,23 +90,34 @@ wss.on("connection", function connection(ws) {
         if (usermap.has(ws)) {
           wss.clients.forEach((client) => {
             if (client != ws) {
-              const text = data.toString();
-              console.log(`converted data to string : ${text}`);
-
-              client.send({ ...text, username: usermap.get(ws)});
-            } else {
-              throw Error('user does not exist');
+              const text = parsedData.content;
+              console.log("text : ", text);
+              console.log(`${usermap.get(ws)} has sent a message`);
+              client.send(
+                JSON.stringify({
+                  type: "message",
+                  content: text,
+                  username: ` ${usermap.get(ws)}`,
+                }),
+              );
             }
           });
+        } else {
+          throw Error("user does not exist");
         }
         break;
       case "setUserName":
+        console.log("recieved username message");
         const username = parsedData.username;
         if (!username) {
           throw Error("user name not provided");
         }
+        console.log(`storing username ${username} in the map`);
         usermap.set(ws, username);
         break;
+      default:
+        console.log(parsedData.type);
+        throw Error("this type is not valid");
     }
   });
 });

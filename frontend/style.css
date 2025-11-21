@@ -5,6 +5,19 @@ h1 {
 body {
   color: #faf9f6;
 }
+.block {
+  display: block;
+}
+.notification {
+  display: none;
+  position: absolute;
+  text-align: center;
+  color: black;
+  top: 1px;
+  right: 1px;
+  width: 200px;
+  height: 50px;
+}
 
 .title {
   text-align: center;
